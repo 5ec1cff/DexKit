@@ -1235,6 +1235,10 @@ std::vector<uint8_t> DexItem::GetOpSeqFromCode(uint32_t method_idx) {
     return std::move(op_seq);
 }
 
+const dex::Code *DexItem::GetCode(uint32_t method_idx) {
+    return method_codes[method_idx];
+}
+
 std::vector<uint32_t> DexItem::GetUsingStringsFromCode(uint32_t method_idx) {
     auto code = method_codes[method_idx];
     if (code == nullptr) {

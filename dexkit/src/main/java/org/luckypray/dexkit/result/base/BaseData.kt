@@ -25,8 +25,8 @@ import org.luckypray.dexkit.DexKitBridge
 
 abstract class BaseData(
     protected val bridge: DexKitBridge,
-    protected val id: Int = -1,
-    protected val dexId: Int = -1,
+    val id: Int = -1,
+    val dexId: Int = -1,
 ) {
     @JvmSynthetic
     internal fun getBridge() = bridge

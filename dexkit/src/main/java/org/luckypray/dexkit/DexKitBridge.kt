@@ -305,6 +305,16 @@ class DexKitBridge : Closeable {
         }
     }
 
+    fun getMethodDataByDexAndId(dexId: Int, id: Int): MethodData? {
+        return withNativeReadToken { nativeGetMethodDataByDexAndId(it, dexId, id) }?.let {
+            MethodData.from(this, InnerMethodMeta.getRootAsMethodMeta(ByteBuffer.wrap(it)))
+        }
+    }
+
+    fun getStringByDexAndId(dexId: Int, id: Int): String? {
+        return withNativeReadToken { nativeGetString(it, dexId, id) }
+    }
+
     /**
      * Convert [Field] to [FieldData] (if exists).
      * ----------------
@@ -328,6 +338,12 @@ class DexKitBridge : Closeable {
     fun getFieldData(descriptor: String): FieldData? {
         DexField(descriptor)
         return withNativeReadToken { nativeGetFieldData(it, descriptor) }?.let {
+            FieldData.from(this, InnerFieldMeta.getRootAsFieldMeta(ByteBuffer.wrap(it)))
+        }
+    }
+
+    fun getFieldDataByDexAndId(dexId: Int, id: Int): FieldData? {
+        return withNativeReadToken { nativeGetFieldDataByDexAndId(it, dexId, id) }?.let {
             FieldData.from(this, InnerFieldMeta.getRootAsFieldMeta(ByteBuffer.wrap(it)))
         }
     }
@@ -624,6 +640,11 @@ class DexKitBridge : Closeable {
         return withNativeReadToken { nativeGetMethodOpCodes(it, encodeId) }.toList()
     }
 
+    @JvmSynthetic
+    internal fun getMethodInsns(encodeId: Long): CharArray {
+        return withNativeReadToken { nativeGetMethodInsns(it, encodeId) }
+    }
+
     companion object {
         /**
          * create DexKitBridge by apk path
@@ -730,7 +751,12 @@ class DexKitBridge : Closeable {
         private external fun nativeGetMethodData(nativePtr: Long, dexDescriptor: String): ByteArray?
 
         @JvmStatic
+        private external fun nativeGetMethodDataByDexAndId(nativePtr: Long, dexId: Int, id: Int): ByteArray?
+
+        @JvmStatic
         private external fun nativeGetFieldData(nativePtr: Long, dexDescriptor: String): ByteArray?
+        @JvmStatic
+        private external fun nativeGetFieldDataByDexAndId(nativePtr: Long, dexId: Int, id: Int): ByteArray?
 
         @JvmStatic
         private external fun nativeGetClassByIds(nativePtr: Long, ids: LongArray): ByteArray
@@ -760,6 +786,9 @@ class DexKitBridge : Closeable {
         private external fun nativeGetMethodOpCodes(nativePtr: Long, methodId: Long): IntArray
 
         @JvmStatic
+        private external fun nativeGetMethodInsns(nativePtr: Long, methodId: Long): CharArray
+
+        @JvmStatic
         private external fun nativeGetCallMethods(nativePtr: Long, encodeId: Long): ByteArray
 
         @JvmStatic
@@ -779,6 +808,9 @@ class DexKitBridge : Closeable {
 
         @JvmStatic
         private external fun nativeFieldPutMethods(nativePtr: Long, encodeId: Long): ByteArray
+
+        @JvmStatic
+        private external fun nativeGetString(nativePtr: Long, dexId: Int, id: Int): String?
 
     }
 }

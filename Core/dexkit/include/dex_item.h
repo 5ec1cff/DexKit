@@ -230,6 +230,7 @@ private:
     std::string GetFieldDescriptor(uint32_t field_idx);
 
     std::vector<uint8_t> GetOpSeqFromCode(uint32_t method_idx);
+    const dex::Code *GetCode(uint32_t method_idx);
     std::vector<uint32_t> GetUsingStringsFromCode(uint32_t method_idx);
     std::vector<uint32_t> GetInvokeMethodsFromCode(uint32_t method_idx);
     // These helpers are the "member-scoped lazy" exceptions to the global warm-up barrier.

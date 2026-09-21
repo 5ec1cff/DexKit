@@ -224,6 +224,10 @@ class MethodData private constructor(
         bridge.getMethodOpCodes(getEncodeId(dexId, id))
     }
 
+    val insns by lazy {
+        bridge.getMethodInsns(getEncodeId(dexId, id))
+    }
+
     /**
      * Get opcode's smali instruction
      * ----------------

@@ -926,3 +926,63 @@ Java_org_luckypray_dexkit_util_NativeReflect_getReflectedMethod(JNIEnv* env, jcl
 }
 
 }
+
+extern "C"
+JNIEXPORT jcharArray JNICALL
+Java_org_luckypray_dexkit_DexKitBridge_nativeGetMethodInsns(JNIEnv *env, jclass clazz,
+                                                            jlong native_ptr, jlong encode_method_id) {
+    if (!native_ptr) {
+        return {};
+    }
+    auto dexkit = reinterpret_cast<dexkit::DexKit *>(native_ptr);
+    auto result = dexkit->GetMethodInsns(encode_method_id);
+    jcharArray ret = env->NewCharArray(result.second);
+    if (result.first)
+        env->SetCharArrayRegion(ret, 0, result.second, (const jchar *) result.first);
+    return ret;
+}
+
+extern "C"
+JNIEXPORT jbyteArray JNICALL
+Java_org_luckypray_dexkit_DexKitBridge_nativeGetMethodDataByDexAndId(JNIEnv *env, jclass clazz,
+                                                                     jlong native_ptr, jint dex_id,
+                                                                     jint id) {
+    if (!native_ptr) {
+        return {};
+    }
+    auto dexkit = reinterpret_cast<dexkit::DexKit *>(native_ptr);
+    auto result = dexkit->GetMethodData((uint32_t) dex_id, (uint32_t) id);
+    jbyteArray ret = nullptr;
+    checkAndSetFlatBufferResult(env, result, ret);
+    return ret;
+}
+
+extern "C"
+JNIEXPORT jbyteArray JNICALL
+Java_org_luckypray_dexkit_DexKitBridge_nativeGetFieldDataByDexAndId(JNIEnv *env, jclass clazz,
+                                                                    jlong native_ptr, jint dex_id,
+                                                                    jint id) {
+    if (!native_ptr) {
+        return {};
+    }
+    auto dexkit = reinterpret_cast<dexkit::DexKit *>(native_ptr);
+    auto result = dexkit->GetFieldData((uint32_t) dex_id, (uint32_t) id);
+    jbyteArray ret = nullptr;
+    checkAndSetFlatBufferResult(env, result, ret);
+    return ret;
+}
+
+extern "C"
+JNIEXPORT jstring JNICALL
+Java_org_luckypray_dexkit_DexKitBridge_nativeGetString(JNIEnv *env, jclass clazz, jlong native_ptr,
+                                                       jint dex_id, jint id) {
+    if (!native_ptr) {
+        return {};
+    }
+    auto dexkit = reinterpret_cast<dexkit::DexKit *>(native_ptr);
+    auto result = dexkit->GetString((uint32_t) dex_id, (uint32_t) id);
+    if (result.has_value()) {
+        return env->NewStringUTF(result->data());
+    }
+    return nullptr;
+}

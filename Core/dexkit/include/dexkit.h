@@ -91,7 +91,10 @@ public:
 
     std::unique_ptr<flatbuffers::FlatBufferBuilder> GetClassData(std::string_view descriptor);
     std::unique_ptr<flatbuffers::FlatBufferBuilder> GetMethodData(std::string_view descriptor);
+    std::unique_ptr<flatbuffers::FlatBufferBuilder> GetMethodData(uint32_t dex_id, uint32_t id);
     std::unique_ptr<flatbuffers::FlatBufferBuilder> GetFieldData(std::string_view descriptor);
+    std::unique_ptr<flatbuffers::FlatBufferBuilder> GetFieldData(uint32_t dex_id, uint32_t id);
+    std::optional<std::string_view> GetString(uint32_t dex_id, uint32_t id);
 
     std::unique_ptr<flatbuffers::FlatBufferBuilder> GetClassByIds(const std::vector<int64_t> &encode_ids);
     std::unique_ptr<flatbuffers::FlatBufferBuilder> GetMethodByIds(const std::vector<int64_t> &encode_ids);
@@ -102,6 +105,7 @@ public:
     std::unique_ptr<flatbuffers::FlatBufferBuilder> GetParameterAnnotations(int64_t encode_method_id);
     std::optional<std::vector<std::optional<std::string_view>>> GetParameterNames(int64_t encode_method_id);
     std::vector<uint8_t> GetMethodOpCodes(int64_t encode_method_id);
+    std::pair<uint16_t *, size_t> GetMethodInsns(int64_t encode_method_id);
     std::unique_ptr<flatbuffers::FlatBufferBuilder> GetCallMethods(int64_t encode_method_id);
     std::unique_ptr<flatbuffers::FlatBufferBuilder> GetInvokeMethods(int64_t encode_method_id);
     std::vector<std::string_view> GetUsingStrings(int64_t encode_method_id);

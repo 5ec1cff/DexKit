@@ -1120,6 +1120,16 @@ DexKit::GetMethodData(const std::string_view descriptor) {
 }
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
+DexKit::GetMethodData(uint32_t dex_id, uint32_t id) {
+    auto &dex = dex_items[dex_id];
+    auto bean = dex->GetMethodBean(id);
+    auto builder = std::make_unique<flatbuffers::FlatBufferBuilder>();
+    auto res = bean.CreateMethodMeta(*builder);
+    builder->Finish(res);
+    return builder;
+}
+
+std::unique_ptr<flatbuffers::FlatBufferBuilder>
 DexKit::GetFieldData(const std::string_view descriptor) {
     auto execution_guard = EnterQueryExecution(0);
     auto class_descriptor = descriptor.substr(0, descriptor.find("->"));
@@ -1135,6 +1145,26 @@ DexKit::GetFieldData(const std::string_view descriptor) {
     auto res = bean->CreateFieldMeta(*builder);
     builder->Finish(res);
     return builder;
+}
+
+std::unique_ptr<flatbuffers::FlatBufferBuilder>
+DexKit::GetFieldData(uint32_t dex_id, uint32_t id) {
+    auto &dex = dex_items[dex_id];
+    auto bean = dex->GetFieldBean(id);
+    auto builder = std::make_unique<flatbuffers::FlatBufferBuilder>();
+    auto res = bean.CreateFieldMeta(*builder);
+    builder->Finish(res);
+    return builder;
+
+}
+
+std::optional<std::string_view>
+DexKit::GetString(uint32_t dex_id, uint32_t id) {
+    auto &dex = dex_items[dex_id];
+    if (id > dex->strings.size()) {
+        return std::nullopt;
+    }
+    return dex->strings[id];
 }
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
@@ -1303,6 +1333,20 @@ DexKit::GetMethodOpCodes(int64_t encode_method_id) {
     auto dex_id = encode_method_id >> 32;
     auto method_id = encode_method_id & UINT32_MAX;
     return dex_items[dex_id]->GetMethodOpCodes(method_id);
+}
+
+std::pair<uint16_t *, size_t>
+DexKit::GetMethodInsns(int64_t encode_method_id) {
+    // Same boundary as annotation getters: metadata reads keep their member-scoped lazy path
+    // instead of forcing a bridge-level warm-up for all methods.
+    auto execution_guard = EnterQueryExecution(0);
+    auto dex_id = encode_method_id >> 32;
+    auto method_id = encode_method_id & UINT32_MAX;
+    auto code = dex_items[dex_id]->GetCode(method_id);
+    if (!code) {
+        return {nullptr, 0};
+    }
+    return {(uint16_t*) code->insns, (size_t) code->insns_size};
 }
 
 std::unique_ptr<flatbuffers::FlatBufferBuilder>
